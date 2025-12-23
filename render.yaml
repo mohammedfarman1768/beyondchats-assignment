@@ -1,9 +1,10 @@
 services:
-  # 1. The Laravel API
+  # 1. Laravel API (Backend)
   - type: web
     name: beyondchats-api
     runtime: docker
-    rootDir: laravel-api # <--- This tells Render the code is in the subfolder
+    rootDir: laravel-api        # <-- Tells Render to enter this folder
+    dockerfilePath: Dockerfile  # <-- Found inside laravel-api
     plan: free
     envVars:
       - key: APP_KEY
@@ -17,14 +18,13 @@ services:
       - key: DB_CONNECTION
         value: pgsql
 
-  # 2. The React Frontend
-  - type: web # Change to 'static' if you prefer a Static Site
+  # 2. React Frontend (Static Site)
+  - type: web
     name: beyondchats-frontend
-    runtime: node
-    rootDir: react-frontend
-    plan: free
+    runtime: static             # <-- Optimized for React/Vite
+    rootDir: react-frontend     # <-- Tells Render to enter this folder
     buildCommand: npm install && npm run build
-    startCommand: npm run dev # Or 'npm run start' depending on your package.json
+    staticPublishPath: dist     # <-- Or 'build'
     envVars:
       - key: VITE_API_BASE_URL
         fromService:
