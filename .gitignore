@@ -1,0 +1,35 @@
+# Laravel
+laravel-api/vendor/
+laravel-api/node_modules/
+laravel-api/.env
+laravel-api/storage/*.key
+laravel-api/storage/logs/*.log
+laravel-api/bootstrap/cache/*
+laravel-api/storage/framework/views/*.php
+laravel-api/storage/framework/cache/data/*
+
+# Node.js
+nodejs-scraper/node_modules/
+nodejs-scraper/.env
+nodejs-scraper/dist/
+
+# React
+react-frontend/node_modules/
+react-frontend/build/
+react-frontend/dist/
+react-frontend/.env
+react-frontend/.env.local
+react-frontend/.env.development.local
+react-frontend/.env.production.local
+react-frontend/.env.test.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

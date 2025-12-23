@@ -1,0 +1,27 @@
+{
+  "name": "nodejs-scraper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "phase1": "node src/scraper.js",
+    "phase2": "node src/index.js",
+    "start": "npm run phase2",
+    "full": "npm run phase1 && npm run phase2",
+    "dev": "npm run full"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.13.2",
+    "cheerio": "^1.1.2",
+    "dotenv": "^17.2.3",
+    "openai": "^6.15.0",
+    "puppeteer": "^24.34.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
