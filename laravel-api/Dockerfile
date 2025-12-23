@@ -1,9 +1,8 @@
-FROM php:8.2-apache
+FROM php:8.4-apache
 
-# Set working directory early
 WORKDIR /var/www/html
 
-# Install system dependencies + PHP extensions for Laravel
+# Install system dependencies + PHP extensions
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
@@ -32,44 +31,38 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Enable Apache rewrite module
 RUN a2enmod rewrite
 
-# Copy composer files FIRST (Docker layer caching)
 COPY composer.json composer.lock* ./
 
-# Composer configuration
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV COMPOSER_ALLOW_SUPERUSER=1
-ENV COMPOSER_CACHE_DIR=/tmp/composer-cache
 
-# Install production dependencies (verbose for debugging, ignore platform reqs)
+# Install deps (ignore platform reqs for install, but PHP 8.4 will satisfy them)
 RUN composer install \
     --no-dev \
     --no-scripts \
     --no-autoloader \
     --no-interaction \
     --prefer-dist \
-    --optimize-autoloader \
     --ignore-platform-reqs \
     --verbose
 
-# Copy application code
 COPY . .
 
-# Generate optimized autoloader
+# FIXED: Add --ignore-platform-reqs to dump-autoload
 RUN composer dump-autoload \
     --no-dev \
     --optimize \
     --classmap-authoritative \
-    --apcu
+    --ignore-platform-reqs
 
-# Set proper permissions
+# Permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Configure Apache for Laravel (public folder)
+# Apache config
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
     /etc/apache2/sites-available/*.conf \
@@ -77,7 +70,7 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
     /etc/apache2/conf-available/*.conf \
     && a2enmod headers
 
-# Create deploy script if it doesn't exist
+# Deploy script fallback
 RUN if [ ! -f /var/www/html/scripts/deploy.sh ]; then \
     mkdir -p /var/www/html/scripts && \
     echo '#!/bin/bash\nphp artisan config:cache\nphp artisan route:cache\nphp artisan view:cache\napache2-foreground' > /var/www/html/scripts/deploy.sh && \
@@ -86,9 +79,7 @@ RUN if [ ! -f /var/www/html/scripts/deploy.sh ]; then \
 
 EXPOSE 80
 
-# Healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost/ || exit 1
 
-# Start Apache
 CMD ["/var/www/html/scripts/deploy.sh"]
