@@ -76,8 +76,14 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
 # Create and set up the deploy script
+# NOTE: The migration line is now uncommented to run automatically
 RUN mkdir -p /var/www/html/scripts && \
-    echo '#!/bin/bash\nphp artisan config:cache\nphp artisan route:cache\nphp artisan view:cache\n# Run migrations if needed\n# php artisan migrate --force\napache2-foreground' > /var/www/html/scripts/deploy.sh && \
+    echo '#!/bin/bash\n\
+php artisan config:cache\n\
+php artisan route:cache\n\
+php artisan view:cache\n\
+php artisan migrate --force\n\
+apache2-foreground' > /var/www/html/scripts/deploy.sh && \
     chmod +x /var/www/html/scripts/deploy.sh
 
 EXPOSE 80
