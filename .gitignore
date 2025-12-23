@@ -1,4 +1,4 @@
-# Laravel
+# Laravel (Subfolder: laravel-api)
 laravel-api/vendor/
 laravel-api/node_modules/
 laravel-api/.env
@@ -8,28 +8,23 @@ laravel-api/bootstrap/cache/*
 laravel-api/storage/framework/views/*.php
 laravel-api/storage/framework/cache/data/*
 
-# Node.js
+# Node.js Scraper (Subfolder: nodejs-scraper)
 nodejs-scraper/node_modules/
 nodejs-scraper/.env
 nodejs-scraper/dist/
 
-# React
+# React Frontend (Subfolder: react-frontend)
 react-frontend/node_modules/
 react-frontend/build/
 react-frontend/dist/
 react-frontend/.env
 react-frontend/.env.local
-react-frontend/.env.development.local
 react-frontend/.env.production.local
 react-frontend/.env.test.local
 
-# IDE
+# IDE & OS
 .idea/
 .vscode/
 *.swp
-*.swo
-*~
-
-# OS
 .DS_Store
 Thumbs.db

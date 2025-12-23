@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
-# Generate the autoloader and run discovery now that we are live
-composer dump-autoload --optimize
+# Finalize composer since we skipped it during build
+composer dump-autoload --optimize --no-dev
 
 # Run database migrations
 php artisan migrate --force
 
-# Clear and set caches
+# Optimize Laravel
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+
+# CRITICAL: Start the web server
+apache2-foreground
