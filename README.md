@@ -1,196 +1,138 @@
-# BeyondChats Engineering Assignment  
-Laravel + Node.js + React.js Full-Stack Implementation
+# BeyondChats Engineering Assignment
 
-This repository contains the complete full-stack solution for the BeyondChats engineering assignment.  
-The project demonstrates an end-to-end automated pipeline involving web scraping, LLM-based content enrichment, and a modern web dashboard for visualization.
-
----
-
-## Live Deployment Links
-
-Frontend Dashboard  
-https://beyondchats-frontend-9wdu.onrender.com
-
-Backend REST API (Laravel)  
-https://beyondchats-api-k93h.onrender.com
-
-Node.js Processing Service  
-https://beyondchats-app.onrender.com
+**Full-Stack AI-Powered Content Enrichment Platform**  
+Laravel + Node.js + React.js Implementation
 
 ---
 
-## System Architecture and Data Flow
+## 🌐 Live Deployment
 
-The application follows a multi-phase pipeline where responsibilities are clearly separated across services.
+- **Frontend Dashboard**: https://beyondchats-frontend-9wdu.onrender.com
+- **Laravel REST API**: https://beyondchats-api-k93h.onrender.com
+- **Node.js Processing Service**: https://beyondchats-app.onrender.com
 
-```mermaid
-graph TD
-    A[BeyondChats Blogs] -->|Phase 1: Scrape Oldest Articles| B[NodeJS Scraper]
-    B -->|POST Scraped Data| C[Laravel API + Database]
-    C -->|Fetch Latest Original Article| D[NodeJS LLM Pipeline]
-    D -->|Google Search| E[External Research Sources]
-    E -->|Context Injection| F[Google Gemini 1.5 Flash LLM]
-    F -->|Rewrite Content + Add References| G[Laravel API Update]
-    G -->|Serve API Data| H[React Frontend Dashboard]
-Project Structure
-graphql
-Copy code
+---
+
+## 📖 Overview
+
+An automated pipeline that scrapes blog articles, enriches content using Google's Gemini 1.5 Flash LLM with external research, and displays results in a modern React dashboard.
+
+**Key Features:**
+- Automated web scraping with Puppeteer
+- AI-powered content enrichment with external source integration
+- RESTful API with Laravel
+- Modern React dashboard with side-by-side comparison
+
+---
+
+## 🏗️ System Architecture
+
+```
+BeyondChats Blog → Node.js Scraper → Laravel API + Database
+                                            ↓
+                     Google Gemini ← External Research Sources
+                           ↓
+                   Enhanced Content → React Frontend
+```
+
+**Data Flow:**
+1. **Phase 1**: Scrape 5 oldest articles from BeyondChats blog
+2. **Phase 2**: Fetch article → Google search → Inject context → LLM rewrite → Store enhanced version
+3. **Phase 3**: Display original vs enriched content in React dashboard
+
+---
+
+## 🛠️ Technology Stack
+
+- **Backend**: PHP 8.2, Laravel 11, MySQL
+- **Processing**: Node.js, Puppeteer, Cheerio, Google Generative AI (Gemini 1.5 Flash)
+- **Frontend**: React 18, Vite, Tailwind CSS, Axios
+
+---
+
+## 📁 Project Structure
+
+```
 beyondchats-assignment/
-├── laravel-api/          # Backend REST API (Laravel 11)
-├── nodejs-scraper/       # Scraping + LLM Processing Pipeline
-└── react-frontend/       # Frontend Dashboard (React + Vite)
-Technical Stack
-Backend
+├── laravel-api/          # Backend REST API
+├── nodejs-scraper/       # Scraping + LLM Pipeline
+└── react-frontend/       # Frontend Dashboard
+```
 
-PHP 8.2
+---
 
-Laravel 11
+## 🚀 Installation
 
-MySQL / PostgreSQL
+### 1. Backend (Laravel API)
 
-Scraping and Automation
-
-Node.js
-
-Puppeteer (browser automation and navigation)
-
-Cheerio (HTML parsing)
-
-Artificial Intelligence
-
-Google Generative AI
-
-Gemini 1.5 Flash (@google/generative-ai)
-
-Frontend
-
-React.js
-
-Vite
-
-Axios
-
-Tailwind CSS
-
-Local Setup Instructions
-1. Backend Configuration (Laravel API)
-Navigate to the backend directory:
-
-bash
-Copy code
+```bash
 cd laravel-api
-Install dependencies:
-
-nginx
-Copy code
 composer install
-Create environment file:
-
-bash
-Copy code
 cp .env.example .env
-Configure database in .env:
-
-ini
-Copy code
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=your_database_name
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
-Generate application key:
-
-vbnet
-Copy code
 php artisan key:generate
-Run database migrations:
-
-nginx
-Copy code
+# Configure database in .env
 php artisan migrate
-Start the development server:
-
-nginx
-Copy code
 php artisan serve
-2. Processing Pipeline (Node.js Scraper and LLM)
-Navigate to the Node.js directory:
+```
 
-bash
-Copy code
+### 2. Processing Pipeline (Node.js)
+
+```bash
 cd nodejs-scraper
-Install dependencies:
-
-nginx
-Copy code
 npm install
-Create and configure .env:
+cp .env.example .env
+# Add LARAVEL_API_URL and GEMINI_API_KEY in .env
+npm run phase1  # Scrape articles
+npm run phase2  # LLM enrichment
+```
 
-ini
-Copy code
-LARAVEL_API_URL=http://127.0.0.1:8000/api
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE
-Run Phase 1 (Scrape oldest articles):
+### 3. Frontend (React)
 
-arduino
-Copy code
-npm run phase1
-Run Phase 2 (LLM rewriting and enrichment):
-
-arduino
-Copy code
-npm run phase2
-3. Frontend Application (React)
-Navigate to the frontend directory:
-
-bash
-Copy code
+```bash
 cd react-frontend
-Install dependencies:
-
-nginx
-Copy code
 npm install
-Configure .env:
-
-ini
-Copy code
-VITE_API_BASE_URL=http://127.0.0.1:8000/api
-Start the development server:
-
-arduino
-Copy code
+cp .env.example .env
+# Add VITE_API_BASE_URL in .env
 npm run dev
-API Documentation
-Method	Endpoint	Description
-GET	/api/articles	Retrieve all original and updated articles
-GET	/api/articles/latest	Retrieve the latest original article
-POST	/api/articles	Store scraped or LLM-generated content
-GET	/api/articles/{id}	Retrieve a specific article by ID
+```
 
-Implementation Details and Assumptions
-Scraping Logic
+---
 
-The Node.js scraper analyzes pagination to identify the oldest articles.
+## 📡 API Endpoints
 
-Only the five oldest articles are ingested during Phase 1 as per assignment scope.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/articles | Get all articles |
+| GET | /api/articles/latest | Get latest original article |
+| POST | /api/articles | Create/update article |
+| GET | /api/articles/{id} | Get specific article |
 
-LLM Strategy
+---
 
-Gemini 1.5 Flash is used in structured JSON-mode prompting.
+## 🔧 Implementation Details
 
-The output includes a rewritten title, enriched content, and reference links.
+**Scraping Strategy:**
+- Puppeteer navigates to oldest articles via pagination
+- Scrapes 5 oldest articles as per assignment scope
+- Stores original content in database
 
-Content Enrichment
+**LLM Enhancement:**
+- Performs Google search using article title
+- Scrapes top 2 external sources for context
+- Uses Gemini 1.5 Flash with structured JSON prompts
+- Generates rewritten content with citations
 
-A Google search is performed using the article title.
+**Frontend:**
+- Side-by-side comparison of original vs enriched content
+- Displays reference links for transparency
+- Responsive design with Tailwind CSS
 
-The top two non-target sources are scraped and injected as contextual references.
+---
 
-Frontend Design
+## 🎯 Key Assumptions
 
-The dashboard clearly differentiates between original and LLM-updated articles.
+- Limited to 5 oldest articles per assignment requirements
+- Top 2 external sources used for context efficiency
+- Gemini 1.5 Flash chosen for speed and quality balance
 
-Reference links used by the LLM are displayed for transparency.
-
+---
