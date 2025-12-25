@@ -1,9 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 
-/**
- * Scrape main content from a URL
- */
+
 export async function scrapeContent(url) {
   try {
     console.log(`Scraping content from: ${url}`);
@@ -18,7 +16,6 @@ export async function scrapeContent(url) {
 
     const $ = cheerio.load(response.data);
 
-    // Remove unwanted elements
     $(
       "script, style, nav, header, footer, .nav, .menu, .sidebar, .advertisement, .ads, .social-share"
     ).remove();
@@ -38,7 +35,6 @@ export async function scrapeContent(url) {
     let content = "";
     let title = $("h1").first().text().trim();
 
-    // Try main content selectors
     for (const selector of contentSelectors) {
       const element = $(selector);
       if (element.length > 0) {
@@ -52,7 +48,6 @@ export async function scrapeContent(url) {
       }
     }
 
-    // Fallback: all paragraphs
     if (!content || content.length < 300) {
       content = $("p")
         .map((_, el) => $(el).text().trim())
@@ -61,7 +56,6 @@ export async function scrapeContent(url) {
         .join("\n\n");
     }
 
-    // Clean content
     content = content
       .replace(/\s+/g, " ")
       .replace(/\n\s*\n/g, "\n\n")
@@ -90,9 +84,7 @@ export async function scrapeContent(url) {
   }
 }
 
-/**
- * Scrape multiple URLs
- */
+
 export async function scrapeMultipleUrls(urls) {
   const results = [];
 
@@ -100,7 +92,6 @@ export async function scrapeMultipleUrls(urls) {
     const result = await scrapeContent(url);
     results.push(result);
 
-    // delay to avoid blocking
     await new Promise(resolve => setTimeout(resolve, 2000));
   }
 

@@ -1,4 +1,3 @@
-// src/scraper.js
 import axios from "axios";
 import * as cheerio from "cheerio";
 import dotenv from "dotenv";
@@ -90,7 +89,6 @@ export async function scrapeBeyondChatsArticles() {
         is_updated: false,
       });
 
-      // polite delay
       await new Promise((r) => setTimeout(r, 1000));
     }
 

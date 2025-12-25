@@ -58,7 +58,6 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            // This reads the full connection string you set in Render
             'url' => env('DATABASE_URL'), 
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),

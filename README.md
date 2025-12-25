@@ -1,282 +1,196 @@
-BeyondChats Assignment – Laravel + NodeJS + React
-This monorepo is an implementation of the BeyondChats engineering assignment:
+# BeyondChats Engineering Assignment  
+Laravel + Node.js + React.js Full-Stack Implementation
 
-Phase 1: Scrape 5 oldest blog articles from the last page of BeyondChats and store them in a Laravel API.
+This repository contains the complete full-stack solution for the BeyondChats engineering assignment.  
+The project demonstrates an end-to-end automated pipeline involving web scraping, LLM-based content enrichment, and a modern web dashboard for visualization.
 
-Phase 2: Use a NodeJS LLM pipeline to rewrite the latest article based on top Google search results and publish the updated version.
+---
 
-Phase 3: Display both original and updated articles in a ReactJS frontend.
+## Live Deployment Links
 
-1. Project Structure
-bash
+Frontend Dashboard  
+https://beyondchats-frontend-9wdu.onrender.com
+
+Backend REST API (Laravel)  
+https://beyondchats-api-k93h.onrender.com
+
+Node.js Processing Service  
+https://beyondchats-app.onrender.com
+
+---
+
+## System Architecture and Data Flow
+
+The application follows a multi-phase pipeline where responsibilities are clearly separated across services.
+
+```mermaid
+graph TD
+    A[BeyondChats Blogs] -->|Phase 1: Scrape Oldest Articles| B[NodeJS Scraper]
+    B -->|POST Scraped Data| C[Laravel API + Database]
+    C -->|Fetch Latest Original Article| D[NodeJS LLM Pipeline]
+    D -->|Google Search| E[External Research Sources]
+    E -->|Context Injection| F[Google Gemini 1.5 Flash LLM]
+    F -->|Rewrite Content + Add References| G[Laravel API Update]
+    G -->|Serve API Data| H[React Frontend Dashboard]
+Project Structure
+graphql
+Copy code
 beyondchats-assignment/
-├─ laravel-api/        # Laravel backend (articles CRUD + DB)
-├─ nodejs-scraper/     # NodeJS scraper + LLM pipeline
-└─ react-frontend/     # React app to view articles
-2. Tech Stack
-Backend: Laravel, PHP, MySQL/Postgres
+├── laravel-api/          # Backend REST API (Laravel 11)
+├── nodejs-scraper/       # Scraping + LLM Processing Pipeline
+└── react-frontend/       # Frontend Dashboard (React + Vite)
+Technical Stack
+Backend
 
-Scraper & LLM: NodeJS, Axios, Cheerio, Puppeteer, @google/generative-ai (Gemini)
+PHP 8.2
 
-Frontend: ReactJS (Vite or CRA), Axios, CSS (responsive layout)
+Laravel 11
 
-3. Data Flow / Architecture
-High‑level flow:
+MySQL / PostgreSQL
 
-Scraper (Node, Phase 1)
+Scraping and Automation
 
-nodejs-scraper/src/scraper.js
+Node.js
 
-Detects the last page of https://beyondchats.com/blogs/ and scrapes the 5 oldest blog articles.
+Puppeteer (browser automation and navigation)
 
-For each article:
+Cheerio (HTML parsing)
 
-Resolves its full URL
+Artificial Intelligence
 
-Scrapes the main HTML content
+Google Generative AI
 
-Sends data to Laravel API via POST /api/articles.
+Gemini 1.5 Flash (@google/generative-ai)
 
-Laravel API (Phase 1)
+Frontend
 
-laravel-api exposes CRUD endpoints for articles:
+React.js
 
-GET /api/articles
+Vite
 
-GET /api/articles/{id}
+Axios
 
-GET /api/articles/latest
+Tailwind CSS
 
-POST /api/articles
+Local Setup Instructions
+1. Backend Configuration (Laravel API)
+Navigate to the backend directory:
 
-PUT /api/articles/{id}
-
-DELETE /api/articles/{id}
-
-Each article has:
-
-title, content, excerpt, url, author, published_date
-
-is_updated (boolean)
-
-original_article_id (nullable, references original)
-
-references (JSON array of reference URLs)
-
-LLM Pipeline (Node, Phase 2)
-
-nodejs-scraper/src/index.js
-
-Fetches latest article from Laravel: GET /api/articles/latest.
-
-Searches Google for the article title and extracts external blog/article links (non‑BeyondChats).
-
-Scrapes the main content of the first 2 reference URLs.
-
-Calls Gemini (processArticleWithLLM) with:
-
-Original article content
-
-Reference snippets
-
-Asks for a JSON response: { "title": "...", "content": "..." }
-
-Appends a “## References” section with the 2 URLs at the bottom of the content.
-
-Saves the updated article via POST /api/articles with:
-
-is_updated: true
-
-original_article_id set to the original article’s ID
-
-references set to the list of URLs
-
-React Frontend (Phase 3)
-
-react-frontend consumes Laravel API:
-
-Lists all articles
-
-Shows original and updated versions
-
-For each updated article, shows which original it came from and displays the reference links.
-
-For the architecture diagram, draw a simple flow like:
-BeyondChats Blogs → Node Scraper → Laravel DB → Node LLM → Laravel DB (updated) → React Frontend
-Export it as PNG from draw.io and add it to the repo (e.g. /docs/architecture.png).
-
-4. Setup & Running Locally
-4.1. Common Prerequisites
-PHP 8.2+ and Composer
-
-NodeJS 18+ and npm
-
-MySQL or Postgres (or Neon DB)
-
-Gemini API key from Google AI Studio
-
-4.2. Backend – Laravel API
 bash
+Copy code
 cd laravel-api
-cp .env.example .env
-Edit .env:
+Install dependencies:
 
-text
-APP_URL=http://127.0.0.1:8000
-
-DB_CONNECTION=mysql        # or pgsql
-DB_HOST=127.0.0.1
-DB_PORT=3306               # or your port
-DB_DATABASE=YOUR_DB_NAME
-DB_USERNAME=YOUR_DB_USER
-DB_PASSWORD=YOUR_DB_PASSWORD
-Install and migrate:
-
-bash
+nginx
+Copy code
 composer install
-php artisan key:generate
-php artisan migrate
-Run the API:
+Create environment file:
 
 bash
-php artisan serve
-# -> http://127.0.0.1:8000
-Available API routes:
-
-GET /api/articles
-
-GET /api/articles/latest
-
-GET /api/articles/{id}
-
-POST /api/articles
-
-PUT /api/articles/{id}
-
-DELETE /api/articles/{id}
-
-4.3. NodeJS – Scraper & LLM
-bash
-cd nodejs-scraper
-npm install
-cp .env.example .env   # if not present, create .env
-.env:
-
-text
-LARAVEL_API_URL=http://127.0.0.1:8000/api
-BEYONDCHATS_BLOGS_URL=https://beyondchats.com/blogs/
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-Scripts (defined in package.json):
-
-json
-"scripts": {
-  "phase1": "node src/scraper.js",
-  "phase2": "node src/index.js",
-  "start": "npm run phase2",
-  "full": "npm run phase1 && npm run phase2"
-}
-Phase 1 – Scrape & store 5 oldest BeyondChats articles
-bash
-npm run phase1
-What it does:
-
-Finds the last blogs page (e.g. ?page=15).
-
-Collects blog article links.
-
-Scrapes full content of the 5 oldest articles.
-
-Sends them to Laravel via POST /api/articles.
-
-Verify:
-
-bash
-curl http://127.0.0.1:8000/api/articles
-# or open in browser / Postman
-You should see 5 articles with author: "BeyondChats" and is_updated: false.
-
-Phase 2 – LLM pipeline
-bash
-npm start
-# or
-npm run phase2
-What it does:
-
-Fetches latest article from GET /api/articles/latest.
-
-Searches Google for the article title.
-
-Scrapes main content from first 2 external blogs.
-
-Calls Gemini to rewrite the article (Markdown, 800–1200 words).
-
-Appends “## References” with the 2 source URLs.
-
-Saves the new article via POST /api/articles with is_updated: true and original_article_id set.
-
-End result: you will see an extra article in /api/articles that is the updated version of the latest BeyondChats article.
-
-Run full pipeline at once
-bash
-npm run full   # phase1 + phase2
-4.4. Frontend – React App
-bash
-cd react-frontend
-npm install
+Copy code
 cp .env.example .env
-.env (for Vite):
+Configure database in .env:
 
-text
-VITE_API_BASE_URL=http://127.0.0.1:8000/api
-Run the app:
+ini
+Copy code
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database_name
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+Generate application key:
+
+vbnet
+Copy code
+php artisan key:generate
+Run database migrations:
+
+nginx
+Copy code
+php artisan migrate
+Start the development server:
+
+nginx
+Copy code
+php artisan serve
+2. Processing Pipeline (Node.js Scraper and LLM)
+Navigate to the Node.js directory:
 
 bash
+Copy code
+cd nodejs-scraper
+Install dependencies:
+
+nginx
+Copy code
+npm install
+Create and configure .env:
+
+ini
+Copy code
+LARAVEL_API_URL=http://127.0.0.1:8000/api
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE
+Run Phase 1 (Scrape oldest articles):
+
+arduino
+Copy code
+npm run phase1
+Run Phase 2 (LLM rewriting and enrichment):
+
+arduino
+Copy code
+npm run phase2
+3. Frontend Application (React)
+Navigate to the frontend directory:
+
+bash
+Copy code
+cd react-frontend
+Install dependencies:
+
+nginx
+Copy code
+npm install
+Configure .env:
+
+ini
+Copy code
+VITE_API_BASE_URL=http://127.0.0.1:8000/api
+Start the development server:
+
+arduino
+Copy code
 npm run dev
-# e.g. http://localhost:5173
-Frontend behavior:
+API Documentation
+Method	Endpoint	Description
+GET	/api/articles	Retrieve all original and updated articles
+GET	/api/articles/latest	Retrieve the latest original article
+POST	/api/articles	Store scraped or LLM-generated content
+GET	/api/articles/{id}	Retrieve a specific article by ID
 
-Fetches articles from GET /api/articles.
+Implementation Details and Assumptions
+Scraping Logic
 
-Displays:
+The Node.js scraper analyzes pagination to identify the oldest articles.
 
-Original articles (where is_updated === false)
+Only the five oldest articles are ingested during Phase 1 as per assignment scope.
 
-Updated articles (where is_updated === true)
+LLM Strategy
 
-For an updated article:
+Gemini 1.5 Flash is used in structured JSON-mode prompting.
 
-Shows which original article it came from (original_article_id).
+The output includes a rewritten title, enriched content, and reference links.
 
-Displays the “References” section (links to the external articles used by the LLM).
+Content Enrichment
 
-5. Live Deployment
-Fill these in for submission:
+A Google search is performed using the article title.
 
-Frontend Live URL: https://YOUR_FRONTEND_URL
+The top two non-target sources are scraped and injected as contextual references.
 
-API Base URL (if deployed): https://YOUR_API_URL/api
+Frontend Design
 
-Make sure the frontend uses the deployed API base URL in its .env.
+The dashboard clearly differentiates between original and LLM-updated articles.
 
-6. Notes, Assumptions & Trade‑offs
-Google search is implemented via scraping, so it may occasionally hit CAPTCHA; in that case the script still uses the first valid blog/article URLs it can parse.
-
-Gemini model: gemini-flash-latest with responseMimeType: "application/json" for reliable extraction of title and content.
-
-references are stored in the DB as JSON arrays and rendered back into Markdown in the content.
-
-Error handling is focused on keeping the pipeline running (logging and falling back, not failing the entire pipeline on a single bad scrape).
-
-7. How to Review
-Run Laravel API (laravel-api).
-
-Run full Node pipeline (nodejs-scraper → npm run full).
-
-Open React UI (react-frontend → npm run dev).
-
-Compare:
-
-Original scraped BeyondChats article.
-
-Updated article produced by LLM (content + formatting + references).
+Reference links used by the LLM are displayed for transparency.
 

@@ -4,28 +4,21 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Initialize Gemini with your API Key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-/**
- * Process article with Gemini to improve formatting and content
- * Using JSON mode for reliable data extraction
- */
+
 export async function processArticleWithLLM(originalArticle, referenceArticles) {
   try {
     console.log(`\nStep 4: Processing with Gemini AI: "${originalArticle.title}"`);
 
-    // 1. Initialize the model with JSON response configuration
-    // Use a currently supported Flash model
+
     const model = genAI.getGenerativeModel({
-      // Good default; you can also use "gemini-2.0-flash"
       model: "gemini-flash-latest",
       generationConfig: {
         responseMimeType: "application/json",
       },
     });
 
-    // 2. Prepare the reference context (truncate to keep prompt safe)
     const referenceContext = referenceArticles
       .map((article, index) => `
         REFERENCE ${index + 1}:
@@ -34,7 +27,6 @@ export async function processArticleWithLLM(originalArticle, referenceArticles) 
       `)
       .join("\n\n");
 
-    // 3. Construct a structured prompt
     const prompt = `
       You are a professional technical editor. Your task is to rewrite the "Original Article" 
       by incorporating facts, data, and context from the provided "Reference Articles".
@@ -59,12 +51,10 @@ export async function processArticleWithLLM(originalArticle, referenceArticles) 
       }
     `;
 
-    // 4. Generate Content
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
 
-    // 5. Parse JSON
     const articleData = JSON.parse(text);
 
     console.log("✅ Gemini successfully rewrote the article using JSON mode.");
@@ -85,7 +75,6 @@ export async function processArticleWithLLM(originalArticle, referenceArticles) 
 
     console.error(error.message);
 
-    // Graceful fallback: return original content so the database save doesn't crash
     return {
       title: originalArticle.title,
       content:

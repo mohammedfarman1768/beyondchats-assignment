@@ -42,7 +42,6 @@ async function processLatestArticle() {
     const urls = searchResults.map((r) => r.url);
     const scrapedArticles = await scrapeMultipleUrls(urls);
 
-    // Attach title from searchResults so references stay aligned
     const successfulScrapes = scrapedArticles
       .filter((a) => a.success)
       .map((a) => ({
@@ -64,7 +63,6 @@ async function processLatestArticle() {
       successfulScrapes
     );
 
-    // Add references section using the URLs returned by the LLM
     const referencesSection =
       "\n\n---\n\n## References\n\n" +
       improvedArticle.references
@@ -101,5 +99,4 @@ async function processLatestArticle() {
   }
 }
 
-// SIMPLIFIED RUN: Just call the function
 processLatestArticle();
